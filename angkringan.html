@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Angkringan Onokabe II - Menu Kuliner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* base and layout styles (single consolidated block) */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background-color: #f8f5f2; color: #333; line-height: 1.6; }
+        header { 
+            background: linear-gradient(135deg,#8B4513,#D2691E); 
+            color:#fff; 
+            padding: 20px 0 10px 0;
+            text-align:center; 
+            box-shadow:0 2px 10px rgba(0,0,0,0.1); 
+        }
+        /* Style Header (Logo di atas, Teks di bawah, semua di-center) */
+        .header-content {
+            display: flex;
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            padding: 0 20px;
+        }
+        .header-logo {
+            /* MENGGUNAKAN NAMA FILE YANG LEBIH AMAN TANPA SPASI */
+            height: 80px; 
+            width: auto;
+            margin-bottom: 5px; 
+            border-radius: 5px; 
+        }
+        .header-content h1 {
+             font-size:2.5em; 
+             margin:0 0 5px 0; 
+        }
+        .header-content p{ 
+            font-size:1.1em; 
+            opacity:.9; 
+            margin:0 0 10px 0; 
+        }
+        
+        @media (max-width: 768px) {
+             .header-logo {
+                height: 60px;
+            }
+             .header-content h1 {
+                font-size: 2em;
+            }
+        }
+        
+        nav{ background:#D2691E; padding:10px; text-align:center }
+        nav button{ background:none; border:none; color:#fff; padding:10px 20px; margin:0 5px; cursor:pointer; border-radius:20px }
+        nav button:hover, nav button.active{ background:rgba(255,255,255,.2) }
+        .search-container{ padding:20px; text-align:center; background:#fff; margin:20px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,.1) }
+        #searchInput{ width:70%; max-width:400px; padding:12px; border:2px solid #D2691E; border-radius:25px; font-size:1em; outline:none }
+        #searchInput:focus{ border-color:#8B4513 }
+        .menu-container{ padding:20px; max-width:1200px; margin:0 auto }
+        .menu-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; margin-top:20px }
+        
+        /* ESTETIKA: MENU CARD */
+        .menu-card{ 
+            background:#fff; 
+            border-radius:15px; 
+            overflow:hidden; 
+            box-shadow:0 4px 10px rgba(0,0,0,0.05);
+            transition:transform .2s, box-shadow .2s; 
+            display: flex; 
+            flex-direction: column; 
+        } 
+        .menu-card:hover{ 
+            transform:translateY(-3px);
+            box-shadow:0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        /* PERBAIKAN: Sembunyikan gambar placeholder/teks alt */
+        .menu-card img{ 
+            width:100%; 
+            height: 0; 
+            visibility: hidden; 
+            object-fit:cover;
+        }
+
+        .menu-card h3{ padding:15px; color:#8B4513; font-size:1.2em }
+        .menu-card p{ padding:0 15px 15px; color:#666 }
+        .price{ font-weight:bold; color:#D2691E; font-size:1.1em; padding:0 15px }
+        
+        /* ESTETIKA: TOMBOL DAN COUNTER */
+        .card-footer {
+            margin-top: auto;
+            display: flex;
+            align-items: stretch;
+        }
+
+        .order-btn{ 
+            flex-grow: 1; 
+            padding:12px 15px; 
+            background:#4CAF50; 
+            color:#fff; 
+            border:none; 
+            cursor:pointer; 
+            border-radius:0 0 0 15px;
+            font-weight: 600;
+            transition: background 0.2s;
+        } 
+        .order-btn:hover{ background:#45a049 }
+        
+        /* Style untuk Counter */
+        .item-qty-counter {
+            background: #8B4513; 
+            color: #fff;
+            padding: 12px 15px;
+            font-weight: bold;
+            font-size: 1em;
+            display: none; 
+            text-align: center;
+            border-radius: 0 0 15px 0;
+            cursor: pointer;
+            width: 50px; 
+            flex-shrink: 0;
+        }
+        .card-footer:has(.item-qty-counter.visible) .order-btn {
+             background: #388E3C; 
+        }
+        .item-qty-counter.visible {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Style Modal dan Opsi */
+        .info-section{ background:#fff; margin:40px 20px; padding:30px; border-radius:15px; box-shadow:0 4px 15px rgba(0,0,0,.1); text-align:center }
+        .info-section h2{ color:#8B4513; margin-bottom:20px }
+        .info-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:20px; margin-top:20px }
+        .info-item{ padding:15px; background:#f8f5f2; border-radius:10px }
+        
+        /* STYLE KONTAK PERSON */
+        .contact-links {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        .contact-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-decoration: none;
+            width: 100%;
+            max-width: 300px;
+            transition: transform 0.2s;
+        }
+        .contact-link:hover {
+            transform: translateY(-2px);
+        }
+        .contact-link i {
+            font-size: 1.4em;
+            margin-right: 15px;
+        }
+        .wa-button {
+            background: #25D366; /* WhatsApp Green */
+            color: white;
+            box-shadow: 0 4px 10px rgba(37, 211, 102, 0.4);
+        }
+        .ig-link {
+            background: #f09433; /* Instagram Gradient-like color */
+            color: white;
+            box-shadow: 0 4px 10px rgba(240, 148, 51, 0.4);
+        }
+        /* AKHIR STYLE KONTAK PERSON */
+
+        .cart{ position:fixed; top:20px; right:20px; background:#D2691E; color:#fff; padding:10px 15px; border-radius:50px; cursor:pointer; box-shadow:0 2px 10px rgba(0,0,0,.2); z-index:1000 }
+        .cart:hover{ background:#8B4513 }
+        .cart-count{ background:#4CAF50; border-radius:50%; padding:2px 6px; font-size:.8em; margin-left:5px }
+        #cartModal{ display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.5); z-index:1001 }
+        #orderModal{ display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.5); z-index:1002 }
+        .modal-content{ background:#fff; margin:10% auto; padding:20px; width:80%; max-width:500px; border-radius:15px; max-height:70vh; overflow-y:auto }
+        .close{ float:right; font-size:28px; font-weight:bold; cursor:pointer }
+        .close:hover{ color:#D2691E }
+        /* Style item keranjang */
+        .cart-item{ display:flex; justify-content:space-between; align-items: center; padding:10px 0; border-bottom:1px solid #eee }
+        .item-details { flex-grow: 1; }
+        .item-qty-controls { display: flex; align-items: center; justify-content: flex-end; min-width: 120px; }
+        .qty-button {
+            background: #D2691E;
+            color: white;
+            border: none;
+            padding: 3px 6px;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 5px;
+            margin-left: 5px;
+            font-size: 0.9em;
+            transition: background 0.2s;
+        }
+        .qty-button:hover { background: #8B4513; }
+        .total{ font-weight:bold; font-size:1.2em; color:#8B4513; margin-top:20px }
+        .checkout-btn{ width:100%; padding:12px; background:#4CAF50; color:#fff; border:none; border-radius:25px; font-size:1em; cursor:pointer; margin-top:10px }
+        .hidden{ display:none }
+
+        .spice-select {
+            padding: 10px 15px 0px 15px; 
+            margin-bottom: 5px; 
+        }
+        .menu-card .spice-select:last-of-type {
+            margin-bottom: 10px;
+        }
+        .spice-select label {
+            display: block;
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .spice-select select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <img src="logo-angkringan.jpg" alt="Logo Angkringan Onokabe II" class="header-logo">
+            
+            <h1>Angkringan Onokabe II</h1>
+            <p>Nikmati Best Seller Nasi Bakar Cumi dan Ayam Serta Teh Tarik Hot and Freeze</p>
+        </div>
+    </header>
+
+    <nav>
+        <button class="active" onclick="filterMenu('all')">Semua</button>
+        <button onclick="filterMenu('makanan')">Makanan</button>
+        <button onclick="filterMenu('minuman')">Minuman</button>
+    </nav>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Cari menu favorit Anda..." onkeyup="searchMenu()">
+    </div>
+
+    <div class="menu-container">
+        <div id="menuGrid" class="menu-grid">
+            </div>
+    </div>
+
+    <div class="info-section">
+        <h2>🕕 Informasi Toko</h2>
+        <div class="info-grid">
+            <div class="info-item">
+                <h3>Jam Operasional</h3>
+                <p>18.00 – 00.00 WIB</p>
+            </div>
+            <div class="info-item">
+                <h3>Lokasi</h3>
+                <p>Desa Cipeujeuh Wetan, Kecamatan Lemahabang, Kabupaten Cirebon.<br>Dekat gapura perbatasan Cipeujeuh Kulon – Cipeujeuh Wetan.</p>
+            </div>
+        </div>
+        
+        <div class="contact-links">
+            <h2>Kontak Kami</h2>
+            
+            <a href="https://wa.me/6289515152735" target="_blank" class="contact-link wa-button">
+                <i class="fab fa-whatsapp"></i> WhatsApp: 089515152735
+            </a>
+            
+            <a href="https://www.instagram.com/angkringanonokabe" target="_blank" class="contact-link ig-link">
+                <i class="fab fa-instagram"></i> Instagram: @angkringanonokabe
+            </a>
+        </div>
+        </div>
+    <div class="cart" onclick="toggleCart()">
+        🛒 Keranjang <span id="cartCount" class="cart-count">0</span>
+    </div>
+
+    <div id="cartModal">
+        <div class="modal-content">
+            <span class="close" onclick="toggleCart()">&times;</span>
+            <h2>Keranjang Pesanan</h2>
+            <div id="cartItems" class="cart-items"></div>
+            <div id="cartTotal" class="total">Total: Rp 0</div>
+            <button class="checkout-btn" onclick="checkout()">Checkout & Pesan</button>
+        </div>
+    </div>
+
+    <div id="orderModal">
+        <div class="modal-content">
+            <span class="close" onclick="toggleOrderModal()">&times;</span>
+            <h2>Kirim Pesanan</h2>
+            <div id="orderSummary" style="text-align:left; white-space:pre-wrap; margin-bottom:12px"></div>
+            <label>Nama singkat (untuk penerima): <input type="text" id="custName" placeholder="Nama singkat" style="width:100%; padding:8px; margin:6px 0"></label>
+            <div style="display:flex; gap:8px; margin-top:8px;">
+                <button class="checkout-btn" onclick="sendOrder()">Kirim ke WA Pemilik</button>
+                <button class="checkout-btn" style="background:#D2691E" onclick="cancelOrderSend()">Batal</button>
+            </div>
+            
+            <p style="font-size:0.9em; color:#666; margin-top:8px">Pesanan akan dikirim ke pemilik (WhatsApp). Pelanggan hanya perlu mengisi nama singkat.</p>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA VARIAN MIE ---
+        const mieGorengVarian = ['Indomie Goreng', 'Rendang', 'Indomie Aceh'];
+        const mieRebusVarian = ['Empal Gentong', 'Soto', 'Ayam Bawang', 'Ayam Spesial'];
+        
+        // --- DATA VARIAN MINUMAN ---
+        const teajusVarian = ['Apel', 'Lemon', 'Gula Batu', 'Melati'];
+        const nutrisariVarian = ['Sweet Guava', 'Sweet Orange', 'Jeruk Peras'];
+        const jasjusVarian = ['Anggur', 'Jeruk'];
+        
+        // --- DATA OPSI KHUSUS ---
+        const yesNoOptions = ['No', 'Yes']; // Yes/No untuk Telur
+
+        // --- FUNGSI PEMBANTU UNTUK MEMBUAT DROPDOWN VARIAN/PEDAS/UMUM ---
+        function createSelectHTML(itemId, options, labelText, type, optionName) {
+            let optionsHTML = '';
+            
+            // Opsi Pedas
+            if (type === 'spice') {
+                optionsHTML += `<option value="Normal" selected>Normal</option>`; 
+                options.forEach(option => {
+                    optionsHTML += `<option value="${option}">${option}</option>`;
+                });
+            } 
+            // Opsi Varian Rasa / Opsi Umum (Yes/No)
+            else {
+                options.forEach((option, index) => {
+                    optionsHTML += `<option value="${option}" ${index === 0 ? 'selected' : ''}>${option}</option>`;
+                });
+            }
+
+            const idPrefix = type === 'spice' ? 'pedas' : 'varian';
+            
+            return `
+                <div class="spice-select">
+                    <label for="${idPrefix}-${itemId}-${optionName}">${labelText}:</label>
+                    <select id="${idPrefix}-${itemId}-${optionName}" name="${idPrefix}-${optionName}" onchange="updateMiePriceDisplay(${itemId})">
+                        ${optionsHTML}
+                    </select>
+                </div>
+            `;
+        }
+        
+        // FUNGSI BARU: Mengubah harga di tampilan kartu mie secara dinamis
+        function updateMiePriceDisplay(itemId) {
+            const item = menuData.find(m => m.id === itemId);
+            if (!item || (itemId !== 4 && itemId !== 5)) return;
+
+            const priceElement = document.getElementById(`price-mie-${itemId}`);
+            const selectElement = document.getElementById(`varian-${itemId}-Telur`);
+            
+            if (priceElement && selectElement) {
+                let finalPrice = item.price;
+                if (selectElement.value === 'Yes') {
+                    finalPrice += item.priceAdd;
+                }
+                
+                priceElement.textContent = formatPrice(finalPrice);
+            }
+        }
+
+        // Full script: render, search, filter, cart
+        const menuData = [
+            // Nasi
+            { id: 1, name: 'Nasi Bakar Ayam', price: 7000, category: 'makanan', image: 'https://via.placeholder.com/200x150?text=Nasi+Bakar+Ayam', desc: 'Best Seller - Nasi bakar dengan ayam suwir pedas.' },
+            { id: 2, name: 'Nasi Bakar Cumi', price: 7000, category: 'makanan', image: 'https://via.placeholder.com/200x150?text=Nasi+Bakar+Cumi', desc: 'Best Seller - Nasi bakar dengan cumi-cumi segar.' },
+            { id: 3, name: 'Nasi Kucing', price: 3000, category: 'makanan', image: 'https://via.placeholder.com/200x150?text=Nasi+Kucing', desc: 'Nasi kecil dengan lauk sederhana.' },
+            
+            // Mie: Memiliki hasVarian, hasSpice, DAN Opsi Umum (Telur)
+            { id: 4, name: 'Mie Goreng', price: 8000, category: 'makanan', image: 'https://via.placeholder.com/200x150?text=Mie+Goreng', hasVarian: true, varianList: mieGorengVarian, hasSpice: true, hasOption: true, optionList: yesNoOptions, optionName: 'Telur', priceAdd: 2000, desc: 'Mie goreng spesial dengan bumbu rumahan.' },
+            { id: 5, name: 'Mie Rebus', price: 8000, category: 'makanan', image: 'https://via.placeholder.com/200x150?text=Mie+Rebus', hasVarian: true, varianList: mieRebusVarian, hasSpice: true, hasOption: true, optionList: yesNoOptions, optionName: 'Telur', priceAdd: 2000, desc: 'Mie rebus hangat dengan kuah kaldu.' },
+            
+            // SATE BARU (Telur Puyuh - TANPA OPSI TAMBAHAN)
+            { id: 22, name: 'Sate Telur Puyuh (per tusuk)', price: 3000, category: 'makanan', image: 'https://via.placeholder.com/200x150?text=Sate+Telur+Puyuh', desc: 'Sate telur puyuh gurih.' },
+            
+            // Menu Sate lainnya (tanpa opsi)
+            { id: 6, name: 'Sate Kulit (per tusuk)', price: 3000, category: 'makanan', image: 'https://via.placeholder.com/200x150?text=Sate+Kulit', desc: 'Sate kulit ayam renyah.' },
+            { id: 7, name: 'Sate Ampela (per tusuk)', price: 3000, category: 'makanan', image: 'https://via.placeholder.com/200x150?text=Sate+Ampela', desc: 'Sate ampela empuk.' },
+            { id: 8, name: 'Baso (per tusuk)', price: 3000, category: 'makanan', image: 'https://via.placeholder.com/200x150?text=Baso', desc: 'Sate baso daging halus.' },
+            { id: 9, name: 'Sosis Kecil (per tusuk)', price: 3000, category: 'makanan', image: 'https://via.placeholder.com/200x150?text=Sosis+Kecil', desc: 'Sate sosis kecil gurih.' },
+            { id: 10, name: 'Kornet (per tusuk)', price: 3000, category: 'makanan', image: 'https://via.placeholder.com/200x150?text=Kornet', desc: 'Sate kornet pedas manis.' },
+            { id: 11, name: 'Sosis Jumbo', price: 5000, category: 'makanan', image: 'https://via.placeholder.com/200x150?text=Sosis+Jumbo', desc: 'Sosis jumbo panggang.' },
+            
+            // Minuman: Opsi Varian
+            { id: 14, name: 'Teajus', price: 2000, category: 'minuman', image: 'https://via.placeholder.com/200x150?text=Teajus', hasVarian: true, varianList: teajusVarian, desc: 'Teh jeruk dingin.' },
+            { id: 15, name: 'Nutrisari', price: 3000, category: 'minuman', image: 'https://via.placeholder.com/200x150?text=Nutrisari', hasVarian: true, varianList: nutrisariVarian, desc: 'Minuman buah instan.' },
+            { id: 21, name: 'Jasjus', price: 3000, category: 'minuman', image: 'https://via.placeholder.com/200x150?text=Jasjus', hasVarian: true, varianList: jasjusVarian, desc: 'Minuman serbuk aneka rasa buah.' },
+            
+            // MINUMAN BARU (Susu Jahe)
+            { id: 23, name: 'Susu Jahe', price: 4000, category: 'minuman', image: 'https://via.placeholder.com/200x150?text=Susu+Jahe', desc: 'Minuman jahe hangat dengan susu.' },
+            
+            // Minuman Lainnya
+            { id: 12, name: 'Teh Tarik', price: 5000, category: 'minuman', image: 'https://via.placeholder.com/200x150?text=Teh+Tarik', desc: 'Best Seller - Teh susu tarik hangat.' },
+            { id: 13, name: 'GoodDay Freeze', price: 5000, category: 'minuman', image: 'https://via.placeholder.com/200x150?text=GoodDay+Freeze', desc: 'Best Seller - GoodDay dingin segar.' },
+            { id: 16, name: 'Susu Putih', price: 3000, category: 'minuman', image: 'https://via.placeholder.com/200x150?text=Susu+Putih', desc: 'Susu segar polos.' },
+            { id: 17, name: 'Kopi Kapal Api', price: 4000, category: 'minuman', image: 'https://via.placeholder.com/200x150?text=Kopi+Kapal+Api', desc: 'Kopi hitam klasik.' },
+            { id: 18, name: 'Kopi ABC', price: 4000, category: 'minuman', image: 'https://via.placeholder.com/200x150?text=Kopi+ABC', desc: 'Kopi susu ABC.' },
+            { id: 19, name: 'Kopi Luwak', price: 4000, category: 'minuman', image: 'https://via.placeholder.com/200x150?text=Kopi+Luwak', desc: 'Kopi luwak istimewa.' },
+            { id: 20, name: 'Susu Cokelat', price: 3000, category: 'minuman', image: 'https://via.placeholder.com/200x150?text=Susu+Cokelat', desc: 'Susu cokelat manis.' }
+        ];
+
+        let currentCategory = 'all';
+        let cart = [];
+
+        // OWNER CONFIG - Sesuaikan dengan nomor WA yang Anda berikan
+        const OWNER_WA = '6289515152735'; 
+        
+        function formatPrice(n) {
+            return 'Rp ' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+
+        function calculateItemQtyInCart(itemId) {
+            return cart.filter(c => c.id === itemId).reduce((sum, item) => sum + item.qty, 0);
+        }
+        
+        function renderMenu() {
+            const grid = document.getElementById('menuGrid');
+            grid.innerHTML = '';
+            const rawQuery = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+            const normalizeToken = t => t.replace(/[^a-z0-9]+/g, '').replace(/nya$/g, '');
+            const queryTokens = rawQuery.split(/\s+/).map(normalizeToken).filter(Boolean);
+
+            const items = menuData.filter(item => {
+                if (currentCategory !== 'all' && item.category !== currentCategory) return false;
+                if (queryTokens.length === 0) return true;
+                const hay = (item.name + ' ' + (item.desc || '')).toLowerCase();
+                const hayClean = hay.replace(/[^a-z0-9]+/g, ' ');
+                return queryTokens.every(tok => hayClean.includes(tok));
+            });
+
+            if (items.length === 0) {
+                const no = document.createElement('div');
+                no.className = 'info-item';
+                no.style.gridColumn = '1 / -1';
+                no.style.textAlign = 'center';
+                no.textContent = 'Tidak ada menu yang cocok.';
+                grid.appendChild(no);
+                return;
+            }
+
+            items.forEach(item => {
+                const itemQty = calculateItemQtyInCart(item.id);
+                
+                let optionsHTML = '';
+                
+                // OPSI VARIAN RASA (Mie dan Minuman Sachet)
+                if (item.hasVarian) {
+                    optionsHTML += createSelectHTML(item.id, item.varianList, 'Pilih Varian Rasa:', 'varian', 'Rasa');
+                }
+                
+                // OPSI LEVEL PEDAS (Mie)
+                if (item.hasSpice) {
+                    optionsHTML += createSelectHTML(item.id, ['Sedang', 'Pedas', 'Ekstra Pedas'], 'Level Pedas:', 'spice', 'Pedas');
+                }
+                
+                // OPSI UMUM (Telur di Mie)
+                if (item.hasOption) {
+                    // ID Telur di Mie: varian-[ID]-Telur
+                    optionsHTML += createSelectHTML(item.id, item.optionList, `Diberi ${item.optionName}?`, 'varian', item.optionName);
+                }
+                
+                // LOGIKA HARGA TAMPILAN
+                // Tambahkan ID pada elemen harga agar bisa diubah dinamis
+                let displayPriceHTML = `<p class="price" id="price-mie-${item.id}">${formatPrice(item.price)}</p>`;
+
+
+                const card = document.createElement('div');
+                card.className = 'menu-card';
+                card.innerHTML = `
+                    <img src="${item.image}" alt="${item.name}">
+                    <h3>${item.name}</h3>
+                    ${displayPriceHTML} 
+                    <p>${item.desc || ''}</p>
+                    ${optionsHTML} 
+                    
+                    <div class="card-footer">
+                        <button class="order-btn" onclick="addToCart(${item.id})">Tambah ke Keranjang</button>
+                        <span id="qty-counter-${item.id}" class="item-qty-counter ${itemQty > 0 ? 'visible' : ''}">
+                            ${itemQty}
+                        </span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            
+            // Panggil fungsi untuk memastikan harga mie terlihat benar saat pertama kali render
+            // Khusus untuk Mie Goreng (4) dan Mie Rebus (5)
+            updateMiePriceDisplay(4);
+            updateMiePriceDisplay(5);
+        }
+
+        function filterMenu(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(`filterMenu('${cat}')`));
+            });
+            renderMenu();
+        }
+
+        function searchMenu() { renderMenu(); }
+
+        function addToCart(id) {
+            const item = menuData.find(m => m.id === id);
+            if (!item) return;
+
+            let varianRasa = null;
+            let levelPedas = null;
+            let optionDetail = null;
+            let optionName = null;
+            let priceAdjustment = 0; 
+
+            // 1. Ambil nilai Varian Rasa
+            if (item.hasVarian) {
+                const selectElement = document.getElementById(`varian-${id}-Rasa`);
+                if (selectElement) {
+                    varianRasa = selectElement.value;
+                }
+            }
+
+            // 2. Ambil nilai Level Pedas
+            if (item.hasSpice) {
+                const selectElement = document.getElementById(`pedas-${id}-Pedas`);
+                if (selectElement) {
+                    levelPedas = selectElement.value;
+                }
+            }
+            
+            // 3. Ambil nilai Opsi Umum (Telur)
+            if (item.hasOption && item.optionName === 'Telur') {
+                optionName = item.optionName;
+                // Mencari ID Opsi Telur yang dibuat dengan prefix 'varian'
+                const selectElement = document.getElementById(`varian-${id}-Telur`);
+                
+                if (selectElement) {
+                    optionDetail = selectElement.value;
+                    
+                    // LOGIKA PENYESUAIAN HARGA TELUR MIE
+                    if ((id === 4 || id === 5) && optionDetail === 'Yes' && item.priceAdd) {
+                        priceAdjustment = item.priceAdd; // Nilai 2000
+                    }
+                }
+            }
+
+            
+            // Cari item yang sudah ada di keranjang: ID dan SEMUA Opsi harus sama
+            const existing = cart.find(c => 
+                c.id === id && 
+                c.varianRasa === varianRasa && 
+                c.levelPedas === levelPedas &&
+                c.optionDetail === optionDetail
+            );
+            
+            if (existing) {
+                existing.qty += 1; 
+            } else {
+                cart.push({ 
+                    ...item, 
+                    qty: 1, 
+                    varianRasa: varianRasa, 
+                    levelPedas: levelPedas,
+                    optionDetail: optionDetail, 
+                    optionName: optionName,
+                    priceAdjustment: priceAdjustment 
+                }); 
+            }
+            
+            renderMenu(); 
+            updateCartDisplay();
+        }
+
+        // FUNGSI INI KINI BERFUNGSI SEBAGAI KURANGI KUANTITAS (-)
+        function removeItemFromCart(index) {
+            if (cart[index].qty > 1) {
+                cart[index].qty -= 1; // Kurangi Kuantitas
+            } else {
+                cart.splice(index, 1); // Hapus jika Kuantitas = 1
+            }
+            
+            renderMenu();
+            updateCartDisplay();
+        }
+
+        function updateCartDisplay() {
+            const countSpan = document.getElementById('cartCount');
+            const totalQty = cart.reduce((s, i) => s + i.qty, 0);
+            countSpan.textContent = totalQty;
+            const cartItems = document.getElementById('cartItems');
+            cartItems.innerHTML = '';
+            
+            let grandTotal = 0; 
+            
+            cart.forEach((i, index) => {
+                const div = document.createElement('div');
+                div.className = 'cart-item';
+                
+                // Hitung harga per item (Harga dasar + Penyesuaian Harga)
+                const itemPrice = i.price + (i.priceAdjustment || 0);
+                const subtotal = itemPrice * i.qty;
+                grandTotal += subtotal; 
+                
+                // Buat detail item
+                let itemDetailName = i.name;
+                
+                // 1. Tambahkan Varian Rasa
+                if (i.varianRasa) {
+                    itemDetailName += ` (${i.varianRasa})`;
+                }
+                
+                // 2. Tambahkan Opsi Umum (Telur)
+                 if (i.optionDetail && i.optionDetail !== 'No') {
+                    itemDetailName += ` (${i.optionName}: ${i.optionDetail})`;
+                }
+                
+                // 3. Tambahkan Level Pedas
+                if (i.levelPedas && i.levelPedas !== 'Normal') {
+                    itemDetailName += ` - ${i.levelPedas}`;
+                }
+                
+                // Tentukan tombol yang akan ditampilkan (X atau -)
+                const buttonText = (i.qty > 1) ? '—' : 'X'; 
+                const buttonColor = (i.qty > 1) ? '#D2691E' : 'red';
+
+                // Tambahkan Tombol Kurangi/Hapus
+                div.innerHTML = `
+                    <div class="item-details" style="flex-grow: 1;">
+                        <div>${itemDetailName}</div>
+                        <div style="font-size: 0.9em; color: #8B4513;">${formatPrice(itemPrice)} / pcs</div>
+                    </div>
+                    <div class="item-qty-controls">
+                        <span style="font-weight: bold; margin-right: 10px;">${formatPrice(subtotal)}</span>
+                        <span style="font-weight: bold; margin: 0 5px; width: 20px; text-align: center;">x ${i.qty}</span>
+                        <button class="qty-button" onclick="removeItemFromCart(${index})" style="background: ${buttonColor}; padding: 3px 6px;">${buttonText}</button>
+                    </div>
+                `;
+                cartItems.appendChild(div);
+            });
+            
+            const cartTotal = document.getElementById('cartTotal');
+            cartTotal.textContent = 'Total: ' + formatPrice(grandTotal);
+        }
+
+        function toggleCart() {
+            const modal = document.getElementById('cartModal');
+            modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function checkout() {
+            if (cart.length === 0) { alert('Keranjang kosong. Silakan tambah menu terlebih dahulu.'); return; }
+            const summary = buildOrderMessage();
+            document.getElementById('orderSummary').textContent = summary;
+            toggleOrderModal();
+        }
+
+        function toggleOrderModal() {
+            const m = document.getElementById('orderModal');
+            const cartM = document.getElementById('cartModal');
+            const opening = m.style.display !== 'block';
+            if (opening && cartM) cartM.style.display = 'none';
+            m.style.display = opening ? 'block' : 'none';
+        }
+
+        function buildOrderMessage() {
+            let lines = [];
+            lines.push('Pesanan dari Angkringan Onokabe II');
+            lines.push('--------------------------------');
+            
+            let grandTotal = 0;
+            
+            cart.forEach(i => {
+                let detailText = '';
+                const itemPrice = i.price + (i.priceAdjustment || 0);
+                const subtotal = itemPrice * i.qty;
+                grandTotal += subtotal;
+                
+                // 1. Varian Rasa
+                if (i.varianRasa) {
+                    const detailType = (i.id === 4 || i.id === 5) ? 'Varian' : 'Rasa'; 
+                    detailText += ` (${detailType} ${i.varianRasa})`; 
+                }
+                
+                // 2. Opsi Umum (Telur)
+                if (i.optionDetail && i.optionDetail !== 'No') {
+                    detailText += ` (${i.optionName}: ${i.optionDetail})`;
+                }
+
+                // 3. Level Pedas
+                if (i.levelPedas && i.levelPedas !== 'Normal') {
+                    detailText += ` - ${i.levelPedas}`;
+                }
+
+                lines.push(`${i.name}${detailText} x ${i.qty} = ${formatPrice(subtotal)}`);
+            });
+            
+            lines.push('--------------------------------');
+            lines.push('Total: ' + formatPrice(grandTotal));
+            return lines.join('\n');
+        }
+
+        function sendOrder() {
+            const name = (document.getElementById('custName').value || '').trim();
+
+            if (!cart || cart.length === 0) {
+                alert('Keranjang kosong. Silakan tambahkan item sebelum checkout.');
+                return;
+            }
+
+            if (!name) {
+                alert('Masukkan nama singkat Anda sebelum mengirim pesanan.');
+                const inp = document.getElementById('custName');
+                if (inp) inp.focus();
+                return;
+            }
+
+            const summary = buildOrderMessage();
+            const body = ('Nama: ' + name + '\n') + summary + '\n\nTerima kasih.';
+
+            if (OWNER_WA) {
+                const cleanOwner = OWNER_WA.replace(/[^0-9]/g, '');
+                const waOwner = `https://wa.me/${cleanOwner}?text=${encodeURIComponent(body)}`;
+                window.open(waOwner, '_blank');
+                alert('Pesanan sedang dibuka di WhatsApp pemilik. Pastikan WhatsApp Web/atau aplikasi terbuka.');
+            } else {
+                alert('Nomor pemilik belum diset. Silakan set OWNER_WA di kode.');
+            }
+
+            cart = [];
+            updateCartDisplay();
+            const orderModal = document.getElementById('orderModal');
+            if (orderModal) orderModal.style.display = 'none';
+            const cartModal = document.getElementById('cartModal');
+            if (cartModal) cartModal.style.display = 'none';
+        }
+
+        function cancelOrderSend() {
+            toggleOrderModal();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderMenu();
+            updateCartDisplay();
+            const input = document.getElementById('searchInput');
+            input.addEventListener('input', searchMenu);
+        });
+    </script>
+</body>
+</html>
